@@ -1,4 +1,4 @@
-# lua-minifier
+# Lumin
 A self-contained Lua module for minifying, packing, and compiling Lua code.
 
 ## Adding this module to your project
