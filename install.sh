@@ -32,11 +32,13 @@ local delete_blocks = false
 local minify = false
 local print_progress = false
 
+local last_was_output = false
 for i = 1, #arg do
     local a = arg[i]
     if a == '-o' then
         i = i + 1
         output_file = arg[i]
+        last_was_output = true
     elseif a == '-c' or a == '--compile' then
         compile = true
     elseif a == '-r' or a == '--recursive' then
@@ -51,7 +53,11 @@ for i = 1, #arg do
         print_usage()
         os.exit(0)
     elseif not input_file then
-        input_file = a
+        if last_was_output then
+            last_was_output = false
+        else
+            input_file = a
+        end
     else
         io.stderr:write('Unknown argument: ' .. a .. '\n')
         print_usage()
