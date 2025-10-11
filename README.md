@@ -36,7 +36,7 @@ minify = function(
 ) -> string | The minified Lua code.
 ```
 
-So, if you also want to pack everything into a single Lua file as well, pass `true` as the second parameter:
+So, if you also want to pack everything into a single Lua file, pass `true` as the second parameter:
 ```lua
 local packed_minified_code = lumin:minify(lua_code, true)
 ```
@@ -54,7 +54,7 @@ local packed_code = lumin:pack(lua_code)
 ```
 
 Lastly, Lumin allows compiling a string of Lua code into bytecode.
-This does not include packing require statements, into a single file, as sometimes you want to keep those statements!
+This does not include packing require statements into a single file, as sometimes you want to keep those statements!
 
 ```
 compile = function(
