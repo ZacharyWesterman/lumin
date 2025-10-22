@@ -35,33 +35,32 @@ local print_progress = false
 local last_was_output = false
 for i = 1, #arg do
     local a = arg[i]
-    if a == '-o' then
-        i = i + 1
-        output_file = arg[i]
-        last_was_output = true
-    elseif a == '-c' or a == '--compile' then
-        compile = true
-    elseif a == '-r' or a == '--recursive' then
-        recursive = true
-    elseif a == '-d' or a == '--delete' then
-        delete_blocks = true
-    elseif a == '-m' or a == '--minify' then
-        minify = true
-    elseif a == '-p' or a == '--progress' then
-        print_progress = true
-    elseif a == '-h' or a == '--help' then
-        print_usage()
-        os.exit(0)
-    elseif not input_file then
-        if last_was_output then
-            last_was_output = false
-        else
-            input_file = a
-        end
+    if last_was_output then
+        output_file = a
+        last_was_output = false
     else
-        io.stderr:write('Unknown argument: ' .. a .. '\n')
-        print_usage()
-        os.exit(1)
+        if a == '-o' then
+            last_was_output = true
+        elseif a == '-c' or a == '--compile' then
+            compile = true
+        elseif a == '-r' or a == '--recursive' then
+            recursive = true
+        elseif a == '-d' or a == '--delete' then
+            delete_blocks = true
+        elseif a == '-m' or a == '--minify' then
+            minify = true
+        elseif a == '-p' or a == '--progress' then
+            print_progress = true
+        elseif a == '-h' or a == '--help' then
+            print_usage()
+            os.exit(0)
+        elseif not input_file then
+            input_file = a
+        else
+            io.stderr:write('Unknown argument: ' .. a .. '\n')
+            print_usage()
+            os.exit(1)
+        end
     end
 end
 
