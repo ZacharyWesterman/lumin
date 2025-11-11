@@ -97,12 +97,12 @@ return {
 	minify = function(self, text, standalone, remove_delete_blocks, print_progress)
 		local tokens = self.tokenize(text)
 
-		if standalone then
-			tokens = self.tokens.replace_requires(self, tokens, print_progress)
-		end
-
 		if remove_delete_blocks then
 			tokens = self.tokens.remove_delete_blocks(tokens)
+		end
+
+		if standalone then
+			tokens = self.tokens.replace_requires(tokens, print_progress, remove_delete_blocks)
 		end
 
 		tokens = self.tokens.remove_noinstall_blocks(tokens)
@@ -230,8 +230,9 @@ return {
 		--- Recursively parse require statements and split into a function call and the rest of the program.
 		--- @param tokens lumin.Token[] The tokens to process.
 		--- @param print_progress boolean? Whether to print progress messages.
+		--- @param remove_delete_blocks boolean? Whether to remove blocks of code that are wrapped in `--[[minify-delete]]` ... `--[[/minify-delete]]` comments.
 		--- @return lumin.Token[] new_tokens The processed tokens.
-		_extract_requires = function(self, tokens, print_progress)
+		_extract_requires = function(self, tokens, print_progress, remove_delete_blocks)
 			if print_progress then
 				io.stderr:write('.')
 			end
@@ -275,9 +276,13 @@ return {
 						table.insert(new_tokens, tokens[i])
 					else
 						if not self.tokens._requires_cache[file] then
+							local t = self.tokenize(fp:read('*a'))
+							if remove_delete_blocks then
+								t = self.tokens.remove_delete_blocks(t)
+							end
 							self.tokens._requires_cache[file] = {}
 							self.tokens._requires_cache[file] = {
-								tokens = self.tokens._extract_requires(self, self.tokenize(fp:read('*a')), print_progress),
+								tokens = self.tokens._extract_requires(self, t, print_progress, remove_delete_blocks),
 								id = 'RQ' .. self.tokens._rqid,
 							}
 							self.tokens._rqid = self.tokens._rqid + 1
@@ -302,11 +307,17 @@ return {
 		--- Replace all require calls with the appropriate file contents.
 		--- @param tokens lumin.Token[] The tokens to process.
 		--- @param print_progress boolean? Whether to print progress messages.
+		--- @param remove_delete_blocks boolean? Whether to remove blocks of code that are wrapped in `--[[minify-delete]]` ... `--[[/minify-delete]]` comments.
 		--- @return lumin.Token[] new_tokens The processed tokens.
-		replace_requires = function(self, tokens, print_progress)
+		replace_requires = function(self, tokens, print_progress, remove_delete_blocks)
 			self.tokens._requires_cache = {}
 
-			local program = self.tokens._extract_requires(self, tokens, print_progress)
+			local t = tokens
+			if remove_delete_blocks then
+				t = self.tokens.remove_delete_blocks(t)
+			end
+
+			local program = self.tokens._extract_requires(self, t, print_progress, remove_delete_blocks)
 
 			local result = {}
 			for _, token_list in pairs(self.tokens._requires_cache) do
