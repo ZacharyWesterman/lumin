@@ -102,7 +102,7 @@ return {
 		end
 
 		if standalone then
-			tokens = self.tokens.replace_requires(tokens, print_progress, remove_delete_blocks)
+			tokens = self.tokens.replace_requires(self, tokens, print_progress, remove_delete_blocks)
 		end
 
 		tokens = self.tokens.remove_noinstall_blocks(tokens)
